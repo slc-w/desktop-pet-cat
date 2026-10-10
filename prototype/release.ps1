@@ -12,7 +12,12 @@ foreach ($releaseScript in @('build.ps1', 'run.ps1')) {
 }
 Copy-Item -LiteralPath (Join-Path $PSScriptRoot 'README.md') -Destination (Join-Path $releaseStage 'prototype')
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'Start Cat.cmd') -Destination $releaseStage
-Copy-Item -LiteralPath (Join-Path $releaseRoot 'README.md') -Destination $releaseStage
+foreach ($releaseReadme in Get-ChildItem -LiteralPath $releaseRoot -Filter 'README*.md') {
+    Copy-Item -LiteralPath $releaseReadme.FullName -Destination $releaseStage
+}
+foreach ($releaseDocument in @('FEATURES.md', 'PERSONALITY.md', 'BEHAVIOR_ANIMATION_MAP.md')) {
+    Copy-Item -LiteralPath (Join-Path $releaseRoot $releaseDocument) -Destination $releaseStage
+}
 New-Item -ItemType Directory -Path (Join-Path $releaseStage 'art\sprites') | Out-Null
 foreach ($releaseSprites in Get-ChildItem -LiteralPath (Join-Path $releaseRoot 'art\sprites') -Directory) {
     if (Test-Path -LiteralPath (Join-Path $releaseSprites.FullName 'manifest.json')) {
@@ -20,6 +25,7 @@ foreach ($releaseSprites in Get-ChildItem -LiteralPath (Join-Path $releaseRoot '
     }
 }
 Copy-Item -LiteralPath (Join-Path $releaseRoot 'art\CUSTOM_SPRITES.md') -Destination (Join-Path $releaseStage 'art')
+Copy-Item -LiteralPath (Join-Path $releaseRoot 'art\ASCII_SPRITES.md') -Destination (Join-Path $releaseStage 'art')
 $releaseZip = Join-Path $releaseOutput 'DesktopCat-alpha-source-windows-x64.zip'
 Compress-Archive -Path (Join-Path $releaseStage '*') -DestinationPath $releaseZip -Force
 Write-Output "Portable folder: $releaseStage"

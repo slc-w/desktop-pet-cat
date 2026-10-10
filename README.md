@@ -1,5 +1,7 @@
 # Desktop Cat
 
+[English](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
+
 Code written with **Codex GPT6 Astra**.
 
 A tiny coworker. Mostly naps. Occasionally hunts your cursor.

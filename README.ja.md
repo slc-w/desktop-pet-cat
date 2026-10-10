@@ -1,0 +1,78 @@
+# Desktop Cat
+
+[English](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
+
+コードは **Codex GPT6 Astra** を使用して作成しました。
+
+小さなデスクトップの同僚。だいたい寝ています。ときどきカーソルを追いかけます。
+
+<img src="art/sprites/black-ascii-sticker/sleep/sleep_01.png" alt="頭の上に小さな Z がある、眠っている猫のステッカー" width="170">
+
+Desktop Cat はタスクバーの上を歩き、ウィンドウの上端を探索し、昼寝をしたりマウスカーソルと遊んだりします。ASCII は付属のアートスタイルにすぎません。アプリは PNG のアニメーションフレームを表示するため、ピクセルアートや手描きなど、好きなスタイルに変更できます。標準は白い丸角ステッカーに黒い ASCII 文字を描いたセットで、透明背景に白い文字のセットも付属しています。
+
+## 動作環境
+
+Windows 10 または 11、x64、.NET Framework 4.8、およびデスクトップセッションが必要です。管理者権限、NuGet パッケージ、.NET SDK の追加インストールは不要です。開発用の Windows デスクトップで検証済みですが、ほかの DPI やタスクバー構成は引き続きテストが必要です。
+
+## 猫を迎えよう
+
+1. GitHub の **Code → Download ZIP** からダウンロードするか、Git でリポジトリをクローンします。Release のソース ZIP も利用できます。
+2. 書き込み可能なフォルダーに展開し、`prototype`、`art` フォルダーと **Start Cat.cmd** を同じ場所に置きます。
+3. **Start Cat.cmd** をダブルクリックします。初回はソースを自動でコンパイルし、その後はコードが変更されたときだけ再コンパイルします。
+
+起動時にコンソールが一瞬表示されます。終了するには、通知領域のアイコンのメニューから **Exit** を選択します。コードの更新で再コンパイルが必要な場合は、実行中の猫を先に終了してください。
+
+リポジトリとソース Release ZIP に実行ファイルは含まれていません。ランチャーがローカルの `prototype/bin` に実行ファイルを生成します。このフォルダーとほかのすべての `.exe` ファイルは Git の管理対象から除外されます。
+
+プロジェクトフォルダーの PowerShell から起動する場合：
+
+```powershell
+& '.\Start Cat.cmd'
+```
+
+ランチャーが設定する PowerShell の実行ポリシーは、そのプロセスにのみ適用されます。保存済みのポリシーは変更しません。コンパイルに失敗すると、コンソールを開いたままエラーを表示します。
+
+## 仲良くなろう
+
+| なでてあげる | 追いかけっこ | 抱っこする | 高い場所へ |
+| :---: | :---: | :---: | :---: |
+| <img src="art/sprites/black-ascii-sticker/pet_happy/pet_happy_01.png" alt="なでられて喜ぶ猫" width="120"> | <img src="art/sprites/black-ascii-sticker/paw_swipe/paw_swipe_02.png" alt="前足を伸ばす猫" width="120"> | <img src="art/sprites/black-ascii-sticker/carried/carried_01.png" alt="抱き上げられて足を垂らした猫" width="120"> | <img src="art/sprites/black-ascii-sticker/jump_rise/jump_rise_01.png" alt="足場に向かってジャンプする猫" width="120"> |
+
+- クリックすると猫をなでられます。ドラッグで抱き上げ、離すと落下します。
+- 猫の体と同じ高さで、近くのカーソルをゆっくり動かすと、注目したり、追いかけたり、前足を伸ばしたりします。**Personality** で **Playful Kitten** を選ぶと、より頻繁に遊びます。
+- 猫または通知領域のアイコンを右クリックすると、性格、スプライトセット、睡眠／起床、一時停止、ジャンプ、終了を選べます。通知領域のアイコンをダブルクリックすると、タスクバーの上に戻ります。
+- 上向きのジャンプには、猫の身長の5倍未満の高さにある、十分な着地スペースを持つ露出した足場が必要です。ウィンドウをすべて最大化しても、作業領域の下端を歩けます。
+
+設定と診断情報は `%LOCALAPPDATA%\DesktopCat` に保存されます：`personality.json`、`sprite-set.txt`、`last-run.log`。初回利用時には既存の開発版設定が移行されます。Release パッケージで設定をリセットするには、2つの設定ファイルを削除してください。
+
+## 好きな姿に着せ替えよう
+
+<img src="art/sprites/black-ascii-sticker/look/look_01.png" alt="付属の ASCII ステッカースタイルの猫" width="120">
+
+自作の **340 × 248 ピクセル、透明背景の PNG フレーム**を使えます。付属セットを `art/sprites/` 内の新しいフォルダーへコピーし、画像を差し替え、`manifest.json` に `name` を設定してください。猫または通知領域のメニューで **Sprite set** を開き、新しいセットを選択します。ドロップダウンを開くたびにセットを検索し、選択は次回起動時にも引き継がれます。コードの変更は不要です。
+
+フォルダーの場所、位置合わせ、アニメーションの要件、検証方法は[カスタムスプライトガイド（英語）](art/CUSTOM_SPRITES.md)をご覧ください。どんなキャラクターでも描けますが、現在の動きと性格は猫の行動に基づいています。
+
+## 検証とソースのパッケージ化
+
+プロジェクトフォルダーの PowerShell で実行します：
+
+```powershell
+& '.\Start Cat.cmd' --self-test
+& '.\Start Cat.cmd' --cursor-test
+& '.\Start Cat.cmd' --settings-test
+& '.\Start Cat.cmd' --integration-test
+& '.\Start Cat.cmd' --smoke-test
+```
+
+実行時テストの前に、通常起動している猫を終了してください。各テストを個別に実行し、終了後に `%LOCALAPPDATA%\DesktopCat\last-run.log` を確認します。統合テストは専用のテストウィンドウを一時的に作成します。
+
+`.\prototype\release.ps1` でソースのみの Release ZIP を作成できます。出力先は Git の管理対象外である `dist/` です。ZIP にはランチャー、ソース、スプライトが含まれ、コンパイル済みの実行ファイルは含まれません。ソースはリポジトリで公開し、ZIP は GitHub Release に添付してください。
+
+## 現在の対応範囲
+
+Desktop Cat は現在、プライマリモニターに対応しています。色の変更、複数モニター間の移動、全画面表示中の非表示、おもちゃ、位置の保存は今後の予定です。異なる DPI の組み合わせ、タスクバーの自動非表示、実際のドラッグ＆ドロップ、透明部分のクリック透過、フォーカスの挙動は、さらに多くの環境で手動テストが必要です。
+
+機能・設計ドキュメント（英語）：[機能](FEATURES.md)、[性格](PERSONALITY.md)、[アニメーションの対応](BEHAVIOR_ANIMATION_MAP.md)、[プロトタイプの詳細](prototype/README.md)。
+
+プロジェクトのライセンスはまだ選定されていません。
