@@ -2,6 +2,8 @@
 
 A tiny coworker. Mostly naps. Occasionally hunts your cursor.
 
+<img src="art/sprites/black-ascii-sticker/sleep/sleep_01.png" alt="A sleeping cat sticker with a little Z above its head" width="170">
+
 Desktop Cat walks above the taskbar, explores exposed window tops, naps, and plays with your mouse pointer. ASCII is just the bundled art style: the app displays PNG animation frames, so your pet can use pixel art, hand-drawn artwork, or another style. The default set uses black ASCII on rounded white stickers; a transparent white-text set is also included.
 
 ## Requirements
@@ -28,6 +30,10 @@ The launcher runs its PowerShell helper with a process-only execution-policy set
 
 ## Making friends
 
+| A little affection | Something to chase | Pick me up | A higher perch |
+| :---: | :---: | :---: | :---: |
+| <img src="art/sprites/black-ascii-sticker/pet_happy/pet_happy_01.png" alt="Happy cat after petting" width="120"> | <img src="art/sprites/black-ascii-sticker/paw_swipe/paw_swipe_02.png" alt="Cat reaching out with a paw" width="120"> | <img src="art/sprites/black-ascii-sticker/carried/carried_01.png" alt="Carried cat with dangling paws" width="120"> | <img src="art/sprites/black-ascii-sticker/jump_rise/jump_rise_01.png" alt="Cat jumping toward a platform" width="120"> |
+
 - Click to pet; drag to carry and release to drop.
 - Move the pointer gently near the cat at its body level to attract attention, chase, or a paw swipe. Choose Playful Kitten in Personality for more frequent play.
 - Right-click the cat or tray icon for personality, sprite choice, sleep/wake, pause, jumping, and exit. Double-click the tray icon to return to the taskbar floor.
@@ -36,6 +42,8 @@ The launcher runs its PowerShell helper with a process-only execution-policy set
 Settings and diagnostics are stored in `%LOCALAPPDATA%\DesktopCat`: `personality.json`, `sprite-set.txt`, and `last-run.log`. Existing development settings migrate on first use. Delete the two settings files to reset preferences in a packaged release.
 
 ## Give your pet a new look
+
+<img src="art/sprites/black-ascii-sticker/look/look_01.png" alt="An alert cat in the bundled ASCII sticker style" width="120">
 
 Use your own **340 × 248 pixel PNG frames with transparent backgrounds**. Copy a bundled set into a new folder under `art/sprites/`, replace its artwork, and give it a `name` in `manifest.json`. Open **Sprite set** in the cat or tray menu to choose it. New sets appear when you open the dropdown, and your choice is saved for the next launch. No code changes are needed.
 
