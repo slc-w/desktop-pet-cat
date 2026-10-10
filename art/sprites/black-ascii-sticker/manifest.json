@@ -1,0 +1,419 @@
+{
+  "name": "Black ASCII (white sticker)",
+  "source": "art/ASCII_SPRITES.md",
+  "canvas": [
+    340,
+    248
+  ],
+  "cell": [
+    20,
+    38
+  ],
+  "padding": 10,
+  "support_anchor": [
+    170,
+    238
+  ],
+  "font": "Consolas",
+  "font_size": 32,
+  "style": "black text, rounded white sticker silhouette, transparent exterior",
+  "clips": {
+    "idle": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "idle/idle_01.png",
+          "duration_ms": 900
+        },
+        {
+          "file": "idle/idle_02.png",
+          "duration_ms": 900
+        }
+      ]
+    },
+    "look": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "look/look_01.png",
+          "duration_ms": 650
+        },
+        {
+          "file": "look/look_02.png",
+          "duration_ms": 650
+        }
+      ]
+    },
+    "walk": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "walk/walk_01.png",
+          "duration_ms": 180
+        },
+        {
+          "file": "walk/walk_02.png",
+          "duration_ms": 180
+        }
+      ]
+    },
+    "run": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "run/run_01.png",
+          "duration_ms": 110
+        },
+        {
+          "file": "run/run_02.png",
+          "duration_ms": 110
+        }
+      ]
+    },
+    "sit_down": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "sit_down/sit_down_01.png",
+          "duration_ms": 180
+        },
+        {
+          "file": "sit_down/sit_down_02.png",
+          "duration_ms": 220
+        }
+      ]
+    },
+    "sit": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "sit/sit_01.png",
+          "duration_ms": 1000
+        }
+      ]
+    },
+    "stand_up": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "stand_up/stand_up_01.png",
+          "duration_ms": 180
+        },
+        {
+          "file": "stand_up/stand_up_02.png",
+          "duration_ms": 220
+        }
+      ]
+    },
+    "groom": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "groom/groom_01.png",
+          "duration_ms": 350
+        },
+        {
+          "file": "groom/groom_02.png",
+          "duration_ms": 250
+        }
+      ]
+    },
+    "stretch": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "stretch/stretch_01.png",
+          "duration_ms": 400
+        },
+        {
+          "file": "stretch/stretch_02.png",
+          "duration_ms": 350
+        }
+      ]
+    },
+    "settle": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "settle/settle_01.png",
+          "duration_ms": 350
+        },
+        {
+          "file": "settle/settle_02.png",
+          "duration_ms": 450
+        }
+      ]
+    },
+    "sleep": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "sleep/sleep_01.png",
+          "duration_ms": 1200
+        },
+        {
+          "file": "sleep/sleep_02.png",
+          "duration_ms": 1200
+        }
+      ]
+    },
+    "wake": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "wake/wake_01.png",
+          "duration_ms": 400
+        },
+        {
+          "file": "wake/wake_02.png",
+          "duration_ms": 300
+        }
+      ]
+    },
+    "pet_happy": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "pet_happy/pet_happy_01.png",
+          "duration_ms": 350
+        },
+        {
+          "file": "pet_happy/pet_happy_02.png",
+          "duration_ms": 450
+        }
+      ]
+    },
+    "paw_swipe": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "paw_swipe/paw_swipe_01.png",
+          "duration_ms": 160
+        },
+        {
+          "file": "paw_swipe/paw_swipe_02.png",
+          "duration_ms": 120
+        },
+        {
+          "file": "paw_swipe/paw_swipe_03.png",
+          "duration_ms": 180
+        }
+      ]
+    },
+    "jump_crouch": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "jump_crouch/jump_crouch_01.png",
+          "duration_ms": 180
+        }
+      ]
+    },
+    "jump_rise": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "jump_rise/jump_rise_01.png",
+          "duration_ms": 200
+        }
+      ]
+    },
+    "jump_fall": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "jump_fall/jump_fall_01.png",
+          "duration_ms": 200
+        }
+      ]
+    },
+    "land": {
+      "scope": "core",
+      "loop": false,
+      "frames": [
+        {
+          "file": "land/land_01.png",
+          "duration_ms": 120
+        },
+        {
+          "file": "land/land_02.png",
+          "duration_ms": 180
+        }
+      ]
+    },
+    "fall": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "fall/fall_01.png",
+          "duration_ms": 200
+        }
+      ]
+    },
+    "carried": {
+      "scope": "core",
+      "loop": true,
+      "frames": [
+        {
+          "file": "carried/carried_01.png",
+          "duration_ms": 450
+        },
+        {
+          "file": "carried/carried_02.png",
+          "duration_ms": 450
+        }
+      ]
+    },
+    "blink": {
+      "scope": "optional",
+      "loop": false,
+      "frames": [
+        {
+          "file": "blink/blink_01.png",
+          "duration_ms": 120
+        },
+        {
+          "file": "blink/blink_02.png",
+          "duration_ms": 160
+        }
+      ]
+    },
+    "sleep_twitch": {
+      "scope": "optional-recommended",
+      "loop": false,
+      "frames": [
+        {
+          "file": "sleep_twitch/sleep_twitch_01.png",
+          "duration_ms": 160
+        },
+        {
+          "file": "sleep_twitch/sleep_twitch_02.png",
+          "duration_ms": 240
+        }
+      ]
+    },
+    "sleep_peek": {
+      "scope": "optional-recommended",
+      "loop": false,
+      "frames": [
+        {
+          "file": "sleep_peek/sleep_peek_01.png",
+          "duration_ms": 450
+        },
+        {
+          "file": "sleep_peek/sleep_peek_02.png",
+          "duration_ms": 300
+        }
+      ]
+    },
+    "annoyed_look": {
+      "scope": "optional-recommended",
+      "loop": false,
+      "frames": [
+        {
+          "file": "annoyed_look/annoyed_look_01.png",
+          "duration_ms": 650
+        }
+      ]
+    },
+    "tail_flick": {
+      "scope": "optional-recommended",
+      "loop": false,
+      "frames": [
+        {
+          "file": "tail_flick/tail_flick_01.png",
+          "duration_ms": 160
+        },
+        {
+          "file": "tail_flick/tail_flick_02.png",
+          "duration_ms": 160
+        },
+        {
+          "file": "tail_flick/tail_flick_03.png",
+          "duration_ms": 200
+        }
+      ]
+    },
+    "pet_reserved": {
+      "scope": "optional",
+      "loop": false,
+      "frames": [
+        {
+          "file": "pet_reserved/pet_reserved_01.png",
+          "duration_ms": 500
+        }
+      ]
+    },
+    "pet_lean": {
+      "scope": "optional",
+      "loop": false,
+      "frames": [
+        {
+          "file": "pet_lean/pet_lean_01.png",
+          "duration_ms": 350
+        },
+        {
+          "file": "pet_lean/pet_lean_02.png",
+          "duration_ms": 450
+        }
+      ]
+    },
+    "stalk": {
+      "scope": "optional",
+      "loop": true,
+      "frames": [
+        {
+          "file": "stalk/stalk_01.png",
+          "duration_ms": 350
+        },
+        {
+          "file": "stalk/stalk_02.png",
+          "duration_ms": 350
+        }
+      ]
+    },
+    "pounce": {
+      "scope": "later",
+      "loop": true,
+      "frames": [
+        {
+          "file": "pounce/pounce_01.png",
+          "duration_ms": 150
+        }
+      ]
+    },
+    "knead": {
+      "scope": "later",
+      "loop": true,
+      "frames": [
+        {
+          "file": "knead/knead_01.png",
+          "duration_ms": 350
+        },
+        {
+          "file": "knead/knead_02.png",
+          "duration_ms": 350
+        }
+      ]
+    }
+  }
+}
+

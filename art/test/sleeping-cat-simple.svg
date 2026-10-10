@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="240" height="160" viewBox="0 0 240 160" role="img" aria-label="Simple sleeping cat">
+  <g fill="#eab078" stroke="#493b34" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+    <ellipse cx="141" cy="100" rx="65" ry="36"/>
+    <path d="M39 96 L39 59 L61 73 Q76 68 91 73 L111 59 L111 98 Q111 124 75 124 Q39 124 39 96 Z"/>
+    <path d="M172 110 Q148 133 122 118" fill="none"/>
+  </g>
+  <g fill="none" stroke="#493b34" stroke-width="3" stroke-linecap="round">
+    <path d="M52 95 L63 97 M85 97 L96 95 M71 106 L75 109 L79 106"/>
+    <path d="M146 42 H159 L146 55 H159"/>
+  </g>
+</svg>
