@@ -1,5 +1,7 @@
 # Desktop Cat
 
+Code written with **Codex GPT6 Astra**.
+
 A tiny coworker. Mostly naps. Occasionally hunts your cursor.
 
 <img src="art/sprites/black-ascii-sticker/sleep/sleep_01.png" alt="A sleeping cat sticker with a little Z above its head" width="170">
