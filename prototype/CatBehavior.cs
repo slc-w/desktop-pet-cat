@@ -9,8 +9,8 @@ namespace DesktopCat
 {
     public partial class CatWindow
     {
-        const double BodyHeight = 88 * (Scale / 0.58);
-        const double WalkSpeed = 48 * (Scale / 0.58);
+        double BodyHeight { get { return 88*(Scale/.58); } }
+        double WalkSpeed { get { return 48*(Scale/.58); } }
         double CursorMovementBudget { get { return 18+42*personality.Playfulness/100; } }
         double ChaseDuration { get { return 3+3*personality.Playfulness/100; } }
         double ChaseReach { get { return (6+6*personality.Playfulness/100)*BodyHeight; } }
@@ -38,9 +38,10 @@ namespace DesktopCat
         double CursorNow { get { return testNow.HasValue?testNow.Value:clock.Elapsed.TotalSeconds; } }
         Point lastCursor, lastApproachCursor;
         bool haveCursor, haveApproached, settingsOpen;
+        bool InteractionMenuVisible { get { return menu.Visible || (manager!=null && manager.MenuVisible); } }
         PersonalityWindow personalityEditor;
         readonly Queue<Tuple<double,double>> cursorBudget = new Queue<Tuple<double,double>>();
-        string settingsPath = AppPaths.UserFile("personality.json");
+        string settingsPath;
         bool badSettings;
 
         void LoadPersonality()
@@ -56,6 +57,7 @@ namespace DesktopCat
                 catch { badSettings = true; }
             }
             support = new Platform { Id=IntPtr.Zero, Left=area.Left,Right=area.Right,Y=area.Bottom,WindowLeft=area.Left };
+            ApplyPetSize(personality.PetSize);
         }
         void EditPersonality()
         {
@@ -67,6 +69,7 @@ namespace DesktopCat
             // A modeless WPF window uses the same dispatcher as the pet and does not
             // pause its timer or disable its overlay/tray as a modal Forms dialog did.
             personalityEditor=new PersonalityWindow(personality,SavePersonality,badSettings);
+            personalityEditor.Title=PetName+" — personality & size";
             settingsOpen=true;
             personalityEditor.Closed+=delegate {personalityEditor=null;settingsOpen=false;};
             personalityEditor.Show();
@@ -75,6 +78,7 @@ namespace DesktopCat
         void SavePersonality(Personality value)
         {
             personality=value;
+            ApplyPetSize(value.PetSize);
             try
             {
                 if(badSettings && File.Exists(settingsPath))File.Copy(settingsPath,settingsPath+".invalid-"+DateTime.Now.ToString("yyyyMMddHHmmss"),false);
@@ -82,6 +86,7 @@ namespace DesktopCat
                 File.WriteAllText(temp,new JavaScriptSerializer().Serialize(personality));
                 if(File.Exists(settingsPath))File.Replace(temp,settingsPath,null);else File.Move(temp,settingsPath);
                 badSettings=false;
+                LogPet("Settings saved; "+RuntimeSummary());
             }
             catch(Exception ex){MessageBox.Show(personalityEditor,"Settings apply for this session but could not be saved: "+ex.Message,"Cat personality");}
             disturbance=0;engagement=0;nearbyTime=0;chaseInterest=0;
@@ -91,7 +96,7 @@ namespace DesktopCat
             var source=PresentationSource.FromVisual(this);
             if(source==null)return;
             area=SystemParameters.WorkArea;
-            var windows=NativeWindows.Read(handle,source.CompositionTarget.TransformFromDevice);
+            var windows=NativeWindows.Read(handle,source.CompositionTarget.TransformFromDevice,manager==null?(Func<IntPtr,bool>)null:manager.IsPetWindow);
             if(personalityEditor!=null)
             {
                 IntPtr editorId=new System.Windows.Interop.WindowInteropHelper(personalityEditor).Handle;
@@ -125,7 +130,7 @@ namespace DesktopCat
             {
                 FindSupport();if(support==null)Start("fall",double.MaxValue);
             }
-            if(Top+FootOffset>area.Bottom){Top=area.Bottom-FootOffset;FindSupport();velocity=0;jump=null;Start("land",.3);}
+            if(Top+FootOffset>area.Bottom){Top=area.Bottom-FootOffset;FindSupport();velocity=0;jump=null;FinishCursorLanding();}
         }
         void FindSupport()
         {
@@ -151,6 +156,7 @@ namespace DesktopCat
         }
         void LaunchJump()
         {
+            cursorJump=false;airPawTime=0;
             JumpPlan fresh=null;
             if(jump!=null)
                 foreach(Platform p in platforms)
@@ -162,6 +168,16 @@ namespace DesktopCat
         }
         void AdvanceAir(double dt)
         {
+            if(cursorJump)
+            {
+                stateTime-=dt;
+                cursorBudget.Enqueue(Tuple.Create(CursorNow,Math.Min(dt,Math.Max(0,CursorMovementBudget-BudgetUsed()))));
+                airPawTime=Math.Max(0,airPawTime-dt);
+                if(airPawTime==0 && CanPlayWithCursor && pawCooldown<=0 && Personality.Distance(lastCursor,Body)<.6*BodyHeight)
+                {
+                    airPawTime=.65;pawCooldown=PawAttackDuration+.45;SetClip("paw_swipe");RememberCursorAttention();
+                }
+            }
             double oldFeet=Top+FootOffset,oldX=Left,newFeet,newX;
             if(jump!=null)
             {
@@ -176,7 +192,8 @@ namespace DesktopCat
                 newFeet=jump.Y+jump.VY*jumpElapsed+500*jumpElapsed*jumpElapsed;
                 newX=jump.X+jump.VX*jumpElapsed;
                 velocity=jump.VY+1000*jumpElapsed;
-                if(velocity>=0 && clip!="jump_fall")SetClip("jump_fall");
+                string airClip=airPawTime>0 && CanPlayWithCursor?"paw_swipe":velocity>=0?"jump_fall":"jump_rise";
+                if(clip!=airClip)SetClip(airClip);
             }
             else { newFeet=oldFeet+velocity*dt+500*dt*dt;velocity+=1000*dt;newX=oldX+horizontalVelocity*dt; }
             newX=Motion.Clamp(newX,area.Left,area.Right-Width);
@@ -184,13 +201,14 @@ namespace DesktopCat
             if(landing!=null)
             {
                 Left=Motion.Clamp(newX,landing.Left,landing.Right-Width);Top=landing.Y-FootOffset;support=landing;
-                velocity=0;horizontalVelocity=0;jump=null;Start("land",.3);
+                velocity=0;horizontalVelocity=0;jump=null;FinishCursorLanding();
             }
             else if(newFeet>=area.Bottom)
             {
-                Left=newX;Top=area.Bottom-FootOffset;FindSupport();velocity=0;horizontalVelocity=0;jump=null;Start("land",.3);
+                Left=newX;Top=area.Bottom-FootOffset;FindSupport();velocity=0;horizontalVelocity=0;jump=null;FinishCursorLanding();
             }
             else {Left=newX;Top=Math.Max(area.Top,newFeet-FootOffset);}
+            UpdatePawContact(Personality.Distance(lastCursor,Body));
         }
         Rect Body { get { double inset=8*(Scale/.58);return new Rect(Left+inset,Top+FootOffset-BodyHeight,Width-2*inset,BodyHeight); } }
         void UpdateAttention(double dt)
@@ -199,9 +217,11 @@ namespace DesktopCat
             if(!personality.CursorAttention)attentionAwakeTime=0;
             cursorCooldown=Math.Max(0,cursorCooldown-dt);glanceCooldown=Math.Max(0,glanceCooldown-dt);wakeCooldown=Math.Max(0,wakeCooldown-dt);reactionTime=Math.Max(0,reactionTime-dt);
             pawCooldown=Math.Max(0,pawCooldown-dt);
+            cursorJumpCooldown=Math.Max(0,cursorJumpCooldown-dt);
             Point cursor=CursorPosition();double traveled=haveCursor?(cursor-lastCursor).Length:0;haveCursor=true;lastCursor=cursor;
             double distance=Personality.Distance(cursor,Body);
-            bool suppressed=paused || dragging || pressed || settingsOpen || menu.Visible || !personality.CursorAttention || ButtonsHeld;
+            UpdatePawContact(distance);
+            bool suppressed=paused || dragging || pressed || settingsOpen || InteractionMenuVisible || !personality.CursorAttention || ButtonsHeld;
             if(suppressed){engagement=0;nearbyTime=0;disturbance=0;motionSignal=0;motionDistance=0;motionSeconds=0;sampledSpeed=0;chaseInterest=0;pawInterest=0;cursorCooldown=Math.Max(cursorCooldown,.5);return;}
             if(traveled>4*BodyHeight){motionDistance=0;motionSeconds=0;sampledSpeed=0;engagement=0;chaseInterest=0;}
             else {motionDistance+=traveled;motionSeconds+=dt;}
@@ -255,7 +275,7 @@ namespace DesktopCat
         }
         bool TryCursorAction()
         {
-            if(!personality.CursorAttention || nearbyTime<.5 || pressed || settingsOpen || ButtonsHeld || menu.Visible)return false;
+            if(!personality.CursorAttention || nearbyTime<.5 || pressed || settingsOpen || ButtonsHeld || InteractionMenuVisible)return false;
             Point cursor=lastCursor;double d=Personality.Distance(cursor,Body),g=Personality.Proximity(d,BodyHeight);
             double p=personality.Playfulness/100,c=personality.Curiosity/100,a=personality.Affection/100,b=personality.Boldness/100,s=personality.Sleepiness/100;
             if(pawCooldown<=0 && engagement>.15 && d<.6*BodyHeight && pawInterest>=.15)
@@ -273,13 +293,13 @@ namespace DesktopCat
                 if(chasing || (sampledSpeed<.06*BodyHeight && engagement<.2 && random.NextDouble()<approach*.25))
                 {
                     direction=cursor.X>Body.Left+Body.Width/2?1:-1;
-                    double desired=direction>0?cursor.X-Width-gap:cursor.X+gap;
-                    destination=Motion.Clamp(desired,support.Left,support.Right-Width);
-                    if(Math.Abs(destination-Left)>5 && Math.Sign(destination-Left)==direction)
+                    destination=CursorDestination(cursor,gap);
+                    if(chasing || (Math.Abs(destination-Left)>5 && Math.Sign(destination-Left)==direction))
                     {
                         facingRight=direction>0;action=chasing?"chase":"approach_cursor";stateTime=chasing?ChaseDuration:2;cursorTravel=0;cursorPosition=Left;
-                        chaseWindup=chasing?.22:0;
-                        SetClip(chasing?"stalk":"walk");RememberCursorAttention();lastApproachCursor=cursor;haveApproached=true;chaseInterest=0;retargetTime=0;return true;
+                        chaseWiggling=false;chaseWindup=0;
+                        if(chasing)ChooseChaseWiggle();
+                        SetClip(chasing?(chaseWiggling?"stalk":"run"):"walk");RememberCursorAttention();lastApproachCursor=cursor;haveApproached=true;chaseInterest=0;retargetTime=0;return true;
                     }
                 }
             }
@@ -295,13 +315,14 @@ namespace DesktopCat
             double dist=Personality.Distance(cursor,Body);
             double gap=BodyHeight*(action=="chase"?.35:.65);
             double travelLimit=action=="chase"?ChaseReach:2*BodyHeight;
-            bool stop=support==null || !personality.CursorAttention || settingsOpen || ButtonsHeld || menu.Visible || BudgetUsed()>=CursorMovementBudget || stateTime<=0 || cursorTravel>=travelLimit || dist<gap || dist>6*BodyHeight;
+            bool stop=support==null || !personality.CursorAttention || settingsOpen || ButtonsHeld || InteractionMenuVisible || BudgetUsed()>=CursorMovementBudget || stateTime<=0 || cursorTravel>=travelLimit || dist<gap || dist>6*BodyHeight;
             if(!stop && chaseWindup>0)
             {
                 chaseWindup=Math.Max(0,chaseWindup-dt);
-                if(chaseWindup==0)SetClip("run");
+                if(chaseWindup==0){chaseWiggling=false;SetClip("run");}
                 return;
             }
+            if(!stop && action=="chase" && LaunchCursorJump(cursor))return;
             retargetTime+=dt;
             if(!stop && action=="chase" && retargetTime>=.08)
             {
@@ -310,11 +331,11 @@ namespace DesktopCat
                 // Follow a lure that changes sides, with a brief turn/crouch.
                 if(newDirection!=direction)
                 {
-                    direction=newDirection;facingRight=direction>0;chaseWindup=.12;SetClip("stalk");
-                    destination=Motion.Clamp(direction>0?cursor.X-Width-gap:cursor.X+gap,support.Left,support.Right-Width);
+                    direction=newDirection;facingRight=direction>0;chaseWiggling=false;chaseWindup=.12;SetClip("stalk");
+                    destination=CursorDestination(cursor,gap);
                     return;
                 }
-                else destination=Motion.Clamp(direction>0?cursor.X-Width-gap:cursor.X+gap,support.Left,support.Right-Width);
+                else destination=CursorDestination(cursor,gap);
             }
             if(!stop && Math.Sign(destination-cursorPosition)!=direction)stop=true;
             if(!stop)
@@ -334,16 +355,16 @@ namespace DesktopCat
             }
             if(stop)
             {
-                bool caught=action=="chase" && support!=null && dist<.6*BodyHeight && !ButtonsHeld && !settingsOpen && !menu.Visible && personality.CursorAttention && pawCooldown<=0;
+                bool caught=action=="chase" && support!=null && Personality.Distance(cursor,Body)<.6*BodyHeight && !ButtonsHeld && !settingsOpen && !InteractionMenuVisible && personality.CursorAttention && pawCooldown<=0;
                 cursorCooldown=PlayBreak;chaseInterest=0;chaseWindup=0;
-                if(caught)PlayPawSwipe();else Start("look",.6);
+                if(caught)PlayPawSwipe();else {Start("look",1.8);RememberCursorAttention();}
             }
         }
         void PlayPawSwipe()
         {
             facingRight=lastCursor.X>Body.Left+Body.Width/2;
-            Start("paw_swipe",.46);RememberCursorAttention();pawInterest=0;
-            pawCooldown=.6+1.2*(1-personality.Playfulness/100);
+            Start("paw_swipe",PawAttackDuration);RememberCursorAttention();pawInterest=0;
+            pawCooldown=PawAttackDuration+.45;
             // Close-range pawing does not consume the whole movement cooldown.
             cursorCooldown=Math.Max(cursorCooldown,.35);
         }

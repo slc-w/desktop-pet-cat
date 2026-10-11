@@ -25,12 +25,21 @@ namespace DesktopCat
                         if(Left-previousX<5)throw new Exception("Pet movement stalled while editor was open");
                         var first=personalityEditor;EditPersonality();
                         if(personalityEditor!=first)throw new Exception("Opening settings twice created duplicate windows");
-                        personalityEditor.Close();
+                        double beforeSize=petSize;
+                        personalityEditor.SetSizeForTest(2);personalityEditor.Close();
+                        if(petSize!=beforeSize)throw new Exception("Cancel applied the size slider");
                         if(settingsOpen || personalityEditor!=null || personality.Playfulness!=55 || paused)throw new Exception("Cancel changed profile or left pet paused");
-                        EditPersonality();personalityEditor.SelectPresetForTest(2);personalityEditor.SaveForTest();
+                        EditPersonality();personalityEditor.SetSizeForTest(1.5);personalityEditor.SelectPresetForTest(2);
+                        if(personalityEditor.SizeForTest!=1.5)throw new Exception("Personality preset reset the size slider");
+                        personalityEditor.SaveForTest();
                         var saved=new JavaScriptSerializer().Deserialize<Personality>(File.ReadAllText(settingsPath));
                         if(saved.Playfulness!=95 || personality.Playfulness!=95 || settingsOpen)throw new Exception("Save did not apply/persist/close");
-                        paused=true;EditPersonality();personalityEditor.Close();
+                        // A visible native window rounds its bounds to device pixels.
+                        if(Math.Abs(saved.PetSize-1.5)>.001 || Math.Abs(petSize-1.5)>.001 || Math.Abs(Width-98.6*1.5)>1.5)
+                            throw new Exception("Size did not apply and persist: saved="+saved.PetSize+", applied="+petSize+", width="+Width);
+                        paused=true;EditPersonality();
+                        if(personalityEditor.SizeForTest!=1.5)throw new Exception("Reopened editor lost saved size");
+                        personalityEditor.Close();
                         if(!paused)throw new Exception("Settings overrode an existing pause");
                         paused=false;previousX=Left;stage=1;
                     }

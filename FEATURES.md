@@ -2,7 +2,7 @@
 
 Status: Initial draft for development  
 Date: September 30, 2026  
-Updated: October 1, 2026  
+Updated: October 11, 2026<br>
 Target: Windows desktop application
 
 ## Product goal
@@ -15,7 +15,8 @@ The requested core features are customizable fur color, cursor interaction, auto
 
 | Feature | Expected behavior |
 | --- | --- |
-| Desktop overlay | One animated cat appears over normal desktop applications on a transparent background. |
+| Desktop overlay | Multiple independently controlled pets appear over normal desktop applications on transparent backgrounds, managed by one application and one tray icon. |
+| Multiple pets | Add another pet from the cat or tray menu. Each pet has separate personality, size, sprites, pause state, and movement. Remove one without closing the others; Exit all preserves the pet list for the next launch. Pet windows and their settings editors are excluded from platform discovery. |
 | Starting position | The cat starts at the bottom of the primary display's usable desktop, above a visible bottom taskbar. |
 | Platforms | The desktop floor, the upper edge of a visible bottom taskbar, and exposed top edges of ordinary application windows support the cat. |
 | Jumping | The cat can jump upward to a platform strictly less than five cat heights above its current support surface, subject to horizontal reach and landing clearance. |

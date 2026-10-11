@@ -1,4 +1,4 @@
-# Desktop Cat
+﻿# Desktop Cat
 
 [English](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
@@ -20,7 +20,7 @@ Windows 10 または 11、x64、.NET Framework 4.8、およびデスクトップ
 2. 書き込み可能なフォルダーに展開し、`prototype`、`art` フォルダーと **Start Cat.cmd** を同じ場所に置きます。
 3. **Start Cat.cmd** をダブルクリックします。初回はソースを自動でコンパイルし、その後はコードが変更されたときだけ再コンパイルします。
 
-起動時にコンソールが一瞬表示されます。終了するには、通知領域のアイコンのメニューから **Exit** を選択します。コードの更新で再コンパイルが必要な場合は、実行中の猫を先に終了してください。
+起動時にコンソールが一瞬表示されます。終了するには、通知領域のアイコンのメニューから **Exit all pets** を選択します。コードの更新で再コンパイルが必要な場合は、アプリを先に終了してください。
 
 リポジトリとソース Release ZIP に実行ファイルは含まれていません。ランチャーがローカルの `prototype/bin` に実行ファイルを生成します。このフォルダーとほかのすべての `.exe` ファイルは Git の管理対象から除外されます。
 
@@ -39,11 +39,14 @@ Windows 10 または 11、x64、.NET Framework 4.8、およびデスクトップ
 | <img src="art/sprites/black-ascii-sticker/pet_happy/pet_happy_01.png" alt="なでられて喜ぶ猫" width="120"> | <img src="art/sprites/black-ascii-sticker/paw_swipe/paw_swipe_02.png" alt="前足を伸ばす猫" width="120"> | <img src="art/sprites/black-ascii-sticker/carried/carried_01.png" alt="抱き上げられて足を垂らした猫" width="120"> | <img src="art/sprites/black-ascii-sticker/jump_rise/jump_rise_01.png" alt="足場に向かってジャンプする猫" width="120"> |
 
 - クリックすると猫をなでられます。ドラッグで抱き上げ、離すと落下します。
+- **Personality & size** を開き、**Cat size** スライダーで **0.50×～2.00×** に調整して **Save** を押します。初期値は従来の大きさの **1.25倍**です。サイズは保存され、性格プリセットを切り替えても変わりません。
 - 猫の体と同じ高さで、近くのカーソルをゆっくり動かすと、注目したり、追いかけたり、前足を伸ばしたりします。**Personality** で **Playful Kitten** を選ぶと、より頻繁に遊びます。
-- 猫または通知領域のアイコンを右クリックすると、性格、スプライトセット、睡眠／起床、一時停止、ジャンプ、終了を選べます。通知領域のアイコンをダブルクリックすると、タスクバーの上に戻ります。
+- 追いかけ始めるとき、約10%の確率で1秒ほどしゃがんで体をふりふりします。それ以外は待たずに追いかけます。カーソルが体と同じ高さなら小さく跳び（最低で身長の0.1倍）、カーソルや足場が高ければ、より高くジャンプします。カーソルが前足の届く範囲にある間は、最大約1.3～1.9秒間じゃれ続け、離れるとすぐにやめます。空中でも同様です。届かない場合は、捕まえたことにせず、しばらく見つめます。
+- 猫または通知領域のアイコンを右クリックし、**Add another pet** を選ぶと仲間を追加できます。それぞれのペットに独立した性格、サイズ、スプライトセット、一時停止状態、動きがあります。次回起動時にはペットの一覧が復元されます。
+- 猫を右クリックするか、共通の通知領域メニューで **Cat 1**、**Cat 2** などを選ぶと、そのペットを操作できます。**Remove this pet** はそのペットだけを削除します。**Exit all pets** は一覧を保持してアプリを終了します。アイコンをダブルクリックすると、すべてのペットがタスクバーの上に戻ります。
 - 上向きのジャンプには、猫の身長の5倍未満の高さにある、十分な着地スペースを持つ露出した足場が必要です。ウィンドウをすべて最大化しても、作業領域の下端を歩けます。
 
-設定と診断情報は `%LOCALAPPDATA%\DesktopCat` に保存されます：`personality.json`、`sprite-set.txt`、`last-run.log`。初回利用時には既存の開発版設定が移行されます。Release パッケージで設定をリセットするには、2つの設定ファイルを削除してください。
+設定と診断情報は `%LOCALAPPDATA%\DesktopCat` に保存されます。`pets.json` はペットの一覧を記録し、各ペットの `personality.json`、`sprite-set.txt`、`last-run.log` は `pets\<pet-id>\` に保存されます。最初の猫は既存の設定を自動で引き継ぎます。ルートの `last-run.log` は起動、エラー、テスト結果を記録します。すべてのペットを1つのアプリで管理するため、実行中に再度起動してもペットは追加されません。
 
 ## 好きな姿に着せ替えよう
 
@@ -61,6 +64,7 @@ Windows 10 または 11、x64、.NET Framework 4.8、およびデスクトップ
 & '.\Start Cat.cmd' --self-test
 & '.\Start Cat.cmd' --cursor-test
 & '.\Start Cat.cmd' --settings-test
+& '.\Start Cat.cmd' --multi-pet-test
 & '.\Start Cat.cmd' --integration-test
 & '.\Start Cat.cmd' --smoke-test
 ```

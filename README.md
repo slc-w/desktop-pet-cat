@@ -1,4 +1,4 @@
-# Desktop Cat
+﻿# Desktop Cat
 
 [English](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
@@ -20,7 +20,7 @@ Windows 10 or 11, x64, with .NET Framework 4.8 and a desktop session. No adminis
 2. Extract the ZIP into a writable folder, keeping the `prototype` and `art` folders together with **Start Cat.cmd**.
 3. Double-click **Start Cat.cmd**. The first launch compiles the source automatically; later launches rebuild only when code changes.
 
-A console briefly appears during launch. Use the tray icon's Exit command to stop the pet. Exit a running cat before launching updated code that needs a rebuild.
+A console briefly appears during launch. Use the tray icon's **Exit all pets** command to stop the app. Exit the app before launching updated code that needs a rebuild.
 
 The repository and source release ZIP contain no executables. The launcher generates a local executable in `prototype/bin`, which Git ignores along with all other `.exe` files.
 
@@ -39,11 +39,14 @@ The launcher runs its PowerShell helper with a process-only execution-policy set
 | <img src="art/sprites/black-ascii-sticker/pet_happy/pet_happy_01.png" alt="Happy cat after petting" width="120"> | <img src="art/sprites/black-ascii-sticker/paw_swipe/paw_swipe_02.png" alt="Cat reaching out with a paw" width="120"> | <img src="art/sprites/black-ascii-sticker/carried/carried_01.png" alt="Carried cat with dangling paws" width="120"> | <img src="art/sprites/black-ascii-sticker/jump_rise/jump_rise_01.png" alt="Cat jumping toward a platform" width="120"> |
 
 - Click to pet; drag to carry and release to drop.
+- Open **Personality & size**, adjust **Cat size** from **0.50× to 2.00×**, and press **Save**. The default is **1.25×** the previous size. Your choice is saved, and personality presets keep it unchanged.
 - Move the pointer gently near the cat at its body level to attract attention, chase, or a paw swipe. Choose Playful Kitten in Personality for more frequent play.
-- Right-click the cat or tray icon for personality, sprite choice, sleep/wake, pause, jumping, and exit. Double-click the tray icon to return to the taskbar floor.
+- On roughly 1 in 10 chase starts, the cat randomly crouches and wiggles for about a second; the other chases launch without that delay. It uses low hops at body level (minimum 0.1 body heights) and higher jumps for elevated cursors or platforms. Paw swipes repeat for up to 1.3–1.9 seconds while the cursor stays in range and stop when it moves away, including during a jump. Unreachable targets get a short watch instead of a false catch.
+- Right-click a cat or the tray icon and choose **Add another pet** to bring in a companion. Each pet has its own personality, size, sprite set, pause state, and movement. The app remembers your pet list for the next launch.
+- Right-click a cat for its controls, or select **Cat 1**, **Cat 2**, etc. in the shared tray menu. **Remove this pet** removes only that pet; **Exit all pets** closes the app and preserves your pet list. Double-click the tray icon to return all pets to the taskbar floor.
 - Upward jumps require an exposed platform less than five body heights above the cat, with enough room to land. Maximized windows leave the work-area floor available.
 
-Settings and diagnostics are stored in `%LOCALAPPDATA%\DesktopCat`: `personality.json`, `sprite-set.txt`, and `last-run.log`. Existing development settings migrate on first use. Delete the two settings files to reset preferences in a packaged release.
+Settings and diagnostics are stored in `%LOCALAPPDATA%\DesktopCat`. `pets.json` records the pet list; each pet has `personality.json`, `sprite-set.txt`, and `last-run.log` in `pets\<pet-id>\`. The first cat inherits your existing settings automatically. The root `last-run.log` records app startup, errors, and probe results. One application manages all pets; launching the command again while it is running does not add a pet.
 
 ## Give your pet a new look
 
@@ -61,6 +64,7 @@ From PowerShell in the project folder:
 & '.\Start Cat.cmd' --self-test
 & '.\Start Cat.cmd' --cursor-test
 & '.\Start Cat.cmd' --settings-test
+& '.\Start Cat.cmd' --multi-pet-test
 & '.\Start Cat.cmd' --integration-test
 & '.\Start Cat.cmd' --smoke-test
 ```

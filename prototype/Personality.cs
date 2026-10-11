@@ -12,6 +12,7 @@ namespace DesktopCat
         public string Preset = "Balanced Cat";
         public double Playfulness = 55, Sleepiness = 70, Curiosity = 50, Affection = 65, Boldness = 50, Sensitivity = 50, Patience = 65;
         public double Speed = 1;
+        public double PetSize = 1.25;
         public bool CursorAttention = true;
         public static readonly string[] Names = { "Balanced Cat", "Sleepy Lap Cat", "Playful Kitten", "Curious Explorer", "Gentle Observer" };
         public static Personality ForPreset(int index)
@@ -22,6 +23,7 @@ namespace DesktopCat
         }
         public void Validate()
         {
+            PetSize=Safe(PetSize,1.25,.5,2);
             Playfulness = Safe(Playfulness,55,0,100); Sleepiness=Safe(Sleepiness,70,0,100); Curiosity=Safe(Curiosity,50,0,100);
             Affection=Safe(Affection,65,0,100); Boldness=Safe(Boldness,50,0,100); Sensitivity=Safe(Sensitivity,50,0,100); Patience=Safe(Patience,65,0,100); Speed=Safe(Speed,1,.5,1.5);
         }

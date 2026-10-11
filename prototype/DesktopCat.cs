@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.IO;
@@ -72,13 +72,15 @@ namespace DesktopCat
     }
     public partial class CatWindow : Window
     {
-        const double Scale = 0.29;
-        const double CanvasW = 340 * Scale, CanvasH = 248 * Scale;
+        double petSize = 1.25;
+        double Scale { get { return .29*petSize; } }
+        double CanvasW { get { return 340*Scale; } }
+        double CanvasH { get { return 248*Scale; } }
         // Sticker backing extends below the original text-grid anchor.
-        const double FootOffset = 243 * Scale;
+        double FootOffset { get { return 243*Scale; } }
         Assets assets;
         readonly Image picture = new Image();
-        readonly Random random = new Random();
+        readonly Random random = new Random(Guid.NewGuid().GetHashCode());
         readonly Stopwatch clock = Stopwatch.StartNew();
         readonly DispatcherTimer timer = new DispatcherTimer();
         Forms.NotifyIcon tray;
@@ -92,17 +94,29 @@ namespace DesktopCat
         Rect area;
         IntPtr handle;
         Sprite current;
-        double playBob;
+        double playBob, playSway;
+        readonly PetManager manager;
+        readonly PetProfile profile;
+        internal string PetName { get { return profile==null?"Desktop Cat":profile.Name; } }
+        internal Forms.ContextMenuStrip PetMenu { get { return menu; } }
+        internal bool OwnsWindow(IntPtr hwnd)
+        {
+            return hwnd==handle || (personalityEditor!=null && hwnd==new WindowInteropHelper(personalityEditor).Handle);
+        }
+        internal void LogPet(string text) { if(manager!=null)manager.Log(profile,text); }
 
         [StructLayout(LayoutKind.Sequential)] struct POINT { public int X, Y; }
         [DllImport("user32.dll")] static extern bool GetCursorPos(out POINT point);
         [DllImport("user32.dll")] static extern int GetWindowLong(IntPtr hwnd, int index);
         [DllImport("user32.dll")] static extern int SetWindowLong(IntPtr hwnd, int index, int value);
 
-        public CatWindow(Assets data)
+        public CatWindow(Assets data, PetManager owner=null, PetProfile petProfile=null)
         {
+            manager=owner;profile=petProfile;
+            settingsPath=manager==null?AppPaths.UserFile("personality.json"):manager.ProfileFile(profile,"personality.json");
+            spritePreference=manager==null?SpriteSets.PreferencePath:manager.ProfileFile(profile,"sprite-set.txt");
             assets = data;
-            Title = "Desktop Cat Prototype";
+            Title = PetName;
             Width = CanvasW; Height = CanvasH;
             WindowStyle = WindowStyle.None; ResizeMode = ResizeMode.NoResize;
             AllowsTransparency = true; Background = Brushes.Transparent;
@@ -127,8 +141,8 @@ namespace DesktopCat
             LoadSpritePreference();
             timer.Interval = TimeSpan.FromMilliseconds(16);
             timer.Tick += Tick;
-            Loaded += delegate { lastTime = clock.Elapsed.TotalSeconds; timer.Start(); };
-            Closed += delegate { closing = true; if(personalityEditor!=null)personalityEditor.Close(); timer.Stop(); tray.Visible = false; tray.Dispose(); menu.Dispose(); };
+            Loaded += delegate { lastTime = clock.Elapsed.TotalSeconds; timer.Start();LogPet(RuntimeSummary()); };
+            Closed += delegate { closing = true; if(personalityEditor!=null)personalityEditor.Close(); timer.Stop(); if(tray!=null){tray.Visible=false;tray.Dispose();} LogPet("Closed");menu.Dispose(); };
         }
 
         IntPtr WindowProc(IntPtr hwnd, int msg, IntPtr wparam, IntPtr lparam, ref bool handled)
@@ -143,7 +157,7 @@ namespace DesktopCat
         }
         bool Hit(Point point)
         {
-            int x = (int)(point.X / Scale), y = (int)((point.Y-playBob) / Scale);
+            int x = (int)((point.X-playSway) / Scale), y = (int)((point.Y-playBob) / Scale);
             if (current == null || x < 0 || x >= current.Width || y < 0 || y >= current.Height) return false;
             if (facingRight && clip != "sleep" && clip != "sleep_twitch" && clip != "sleep_peek") x = current.Width - 1 - x;
             return current.Pixels[(y * current.Width + x) * 4 + 3] >= 16;
@@ -167,7 +181,7 @@ namespace DesktopCat
             Point cursor = CursorPosition();
             if (!dragging && (Math.Abs(cursor.X - pressCursor.X) >= SystemParameters.MinimumHorizontalDragDistance || Math.Abs(cursor.Y - pressCursor.Y) >= SystemParameters.MinimumVerticalDragDistance))
             {
-                dragging = true; velocity = 0; horizontalVelocity = 0; support = null; jump = null; action = "carried"; SetClip("carried");
+                dragging = true; velocity = 0; horizontalVelocity = 0; support = null; jump = null; cursorJump=false;airPawTime=0; action = "carried"; SetClip("carried");
             }
             if (dragging)
             {
@@ -186,7 +200,7 @@ namespace DesktopCat
         void DropPet()
         {
             pressed = false; dragging = false; ReleaseMouseCapture(); velocity = 0;
-            horizontalVelocity = 0; jump = null;
+            horizontalVelocity = 0; jump = null;cursorJump=false;airPawTime=0;
             FindSupport();
             if (support == null) Start("fall", double.MaxValue);
             else { Top = support.Y - FootOffset; Start("land", 0.3); }
@@ -204,10 +218,11 @@ namespace DesktopCat
         {
             // A small visual bounce emphasizes running without altering platform physics.
             playBob=action=="chase" && clip=="run"?-Math.Abs(Math.Sin(CursorNow*14))*2.5*(Scale/.29):0;
+            playSway=action=="chase" && chaseWiggling && chaseWindup>0?Math.Sin(CursorNow*28)*1.6*(Scale/.29):0;
             // Sleep symbols remain readable in the canonical orientation.
             bool mirror = facingRight && clip != "sleep" && clip != "sleep_twitch" && clip != "sleep_peek";
             picture.RenderTransformOrigin = new Point(0.5, 0.5);
-            var pose=new TransformGroup();pose.Children.Add(new ScaleTransform(mirror?-1:1,1));pose.Children.Add(new TranslateTransform(0,playBob));
+            var pose=new TransformGroup();pose.Children.Add(new ScaleTransform(mirror?-1:1,1));pose.Children.Add(new TranslateTransform(playSway,playBob));
             picture.RenderTransform=pose;
         }
         void Start(string name, double seconds)
@@ -241,16 +256,7 @@ namespace DesktopCat
             if (refreshTime > .25) { refreshTime = 0; RefreshPlatforms(); }
             UpdateAttention(dt);
             if (paused || (pressed && !dragging)) return;
-            frameTime += dt * 1000 * ((clip == "walk" || clip == "run") ? personality.Speed * (action == "approach_cursor" ? .6 : 1) : 1);
-            var frames = assets.Clips[clip];
-            while (frameTime >= frames[frameIndex].Duration)
-            {
-                frameTime -= frames[frameIndex].Duration;
-                if (frameIndex < frames.Count - 1) frameIndex++;
-                else if (assets.Loops[clip]) frameIndex = 0;
-                else { frameTime = 0; break; }
-                DrawFrame();
-            }
+            AdvanceAnimation(dt);
             UpdatePlayPose();
             if (dragging) return;
             if (action == "fall" || action == "jump") { AdvanceAir(dt); return; }
@@ -275,10 +281,23 @@ namespace DesktopCat
                 else SelectAction();
             }
         }
+        void AdvanceAnimation(double dt)
+        {
+            frameTime += dt * 1000 * ((clip == "walk" || clip == "run") ? personality.Speed * (action == "approach_cursor" ? .6 : 1) : 1);
+            var frames = assets.Clips[clip];
+            while (frameTime >= frames[frameIndex].Duration)
+            {
+                frameTime -= frames[frameIndex].Duration;
+                if (frameIndex < frames.Count - 1) frameIndex++;
+                else if (assets.Loops[clip] || (clip=="paw_swipe" && (action=="paw_swipe" || (cursorJump && airPawTime>0)))) frameIndex = 0;
+                else { frameTime = 0; break; }
+                DrawFrame();
+            }
+        }
         void BuildTray()
         {
             menu = new Forms.ContextMenuStrip();
-            menu.Items.Add("Desktop Cat — prototype").Enabled = false;
+            menu.Items.Add(PetName).Enabled = false;
             pauseItem = new Forms.ToolStripMenuItem("Pause");
             pauseItem.Click += delegate { paused = !paused; pauseItem.Text = paused ? "Resume" : "Pause"; };
             menu.Items.Add(pauseItem);
@@ -286,12 +305,16 @@ namespace DesktopCat
             menu.Items.Add("Wake / stretch", null, delegate { Command("wake", .7); });
             menu.Items.Add("Return to taskbar", null, delegate { ReturnToFloor(); });
             menu.Items.Add("Jump to a reachable window", null, delegate { if (!paused && !dragging && support != null && action != "jump") TryJump(); });
-            menu.Items.Add("Personality...", null, delegate { EditPersonality(); });
+            menu.Items.Add("Personality & size...", null, delegate { EditPersonality(); });
             BuildSpriteMenu();
             menu.Items.Add(new Forms.ToolStripSeparator());
-            menu.Items.Add("Exit", null, delegate { Close(); });
-            tray = new Forms.NotifyIcon { Icon = System.Drawing.SystemIcons.Application, Text = "Desktop Cat — right-click for controls", ContextMenuStrip = menu, Visible = true };
-            tray.DoubleClick += delegate { ReturnToFloor(); };
+            if(manager!=null)menu.Items.Add("Add another pet", null, delegate { manager.AddPet(); });
+            menu.Items.Add(manager==null?"Exit":"Remove this pet", null, delegate { Close(); });
+            if(manager==null)
+            {
+                tray = new Forms.NotifyIcon { Icon = System.Drawing.SystemIcons.Application, Text = "Desktop Cat — right-click for controls", ContextMenuStrip = menu, Visible = true };
+                tray.DoubleClick += delegate { ReturnToFloor(); };
+            }
         }
         void Command(string name, double duration)
         {
@@ -302,6 +325,7 @@ namespace DesktopCat
         void ReturnToFloor()
         {
             if (closing) return;
+            cursorJump=false;airPawTime=0;chaseWindup=0;
             pressed = false; dragging = false; ReleaseMouseCapture(); velocity = 0;
             area = SystemParameters.WorkArea; Left = area.Left + area.Width * .4;
             Top = area.Bottom - FootOffset; Start("idle", 2);
@@ -329,17 +353,29 @@ namespace DesktopCat
                         throw new Exception("Floor or boundary invariant failed");
                     string spriteProbe;
                     var probeWindow = new CatWindow(assets);
-                    try { spriteProbe = probeWindow.RunSpriteSetProbe(); } finally { probeWindow.Close(); }
+                    try { spriteProbe = probeWindow.RunSpriteSetProbe()+"\r\n"+probeWindow.RunSizeProbe(); } finally { probeWindow.Close(); }
                     File.WriteAllText(log, "PASS: both sprite sets loaded and compatible; 30 clips / 54 PNGs loaded; dimensions and durations validated; gravity lands exactly on floor; horizontal bounds clamp.\r\n" + BehaviorTests.Run()+"\r\n" + spriteProbe + "\r\n");
                     return;
                 }
                 bool created;
                 using (var mutex = new System.Threading.Mutex(true, "DesktopCatPrototype-01a0f24a", out created))
                 {
-                    if (!created) return;
+                    if (!created) { if(args.Length>0)throw new InvalidOperationException("Close the running application before running a probe.");return; }
                     var app = new Application();
                     app.DispatcherUnhandledException += delegate(object sender, DispatcherUnhandledExceptionEventArgs e) { File.AppendAllText(log, e.Exception.ToString()); };
                     File.WriteAllText(log, "Starting desktop prototype " + DateTime.Now.ToString("s") + "\r\n");
+                    if(args.Length==0 || args[0]=="--multi-pet-test")
+                    {
+                        app.ShutdownMode=ShutdownMode.OnExplicitShutdown;
+                        string managerData=args.Length==0?AppPaths.Data:Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"multi-pet-probe-"+Guid.NewGuid().ToString("N"));
+                        using(var pets=new PetManager(app,assets,managerData,args.Length==0))
+                        {
+                            pets.Start();
+                            if(args.Length>0)pets.RunProbe(log);
+                            app.Run();
+                        }
+                        return;
+                    }
                     var window = new CatWindow(assets);
                     if(args.Length>0 && args[0]=="--smoke-test")
                     {

@@ -2,7 +2,7 @@
 
 Version: 1 — prototype art, October 1, 2026.
 
-This is the source artwork for image extraction. The [Python renderer](../tools/render_ascii_sprites.py) produces [PNG frames and a manifest](png/manifest.json). It contains all 30 named clips from [the behavior specification](../BEHAVIOR_ANIMATION_MAP.md): 20 core, 8 optional expression clips, and 2 later additions. The recommended first set is the core clips plus sleep_twitch, sleep_peek, annoyed_look, and tail_flick.
+This is the source artwork for image extraction. The [Python renderer](../tools/render_ascii_sprites.py) produces [PNG frames and a manifest](sprites/white-ascii/manifest.json). It contains all 30 named clips from [the behavior specification](../BEHAVIOR_ANIMATION_MAP.md): 20 core, 8 optional expression clips, and 2 later additions. The recommended first set is the core clips plus sleep_twitch, sleep_peek, annoyed_look, and tail_flick.
 
 ## Extraction contract
 
@@ -614,4 +614,4 @@ scope: later | loop: true | frame_ms: 350, 350
 - These are full-body frames. Do not layer a full-body tail_flick or blink over another full-body sprite. Separate facial/tail layers can be introduced later.
 - Look currently changes eye openness only; arbitrary directional gaze is not implemented by these two frames. The runtime can change facing, and dedicated directional expressions can be added after testing.
 - The sitting and carrying silhouettes deliberately use compact test shapes. More natural transition poses and anatomically accurate paws are future polish.
-- Current PNG export uses Consolas at 32 pixels, a 20-by-38-pixel character grid, and 10-pixel canvas padding. All 54 frames are 340 by 248 pixels with RGBA transparency. The renderer preserves the grid and exports frame timings and support anchors in `png/manifest.json`; `png/contact-sheet.png` is an opaque review sheet, not an animation asset.
+- Current PNG export uses Consolas at 32 pixels, a 20-by-38-pixel character grid, and 10-pixel canvas padding. All 54 frames are 340 by 248 pixels with RGBA transparency. The renderer preserves the grid and exports frame timings and support anchors in `sprites/white-ascii/manifest.json`; `sprites/white-ascii/contact-sheet.png` is an opaque review sheet, not an animation asset.

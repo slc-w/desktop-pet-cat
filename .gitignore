@@ -6,5 +6,6 @@ prototype/personality.json*
 __pycache__/
 prototype/sprite-set.txt
 dist/
+
 # Separate ChatGPT pet experiments and local generation metadata are not app assets.
 art/chatgpt-pet/

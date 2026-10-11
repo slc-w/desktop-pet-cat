@@ -1,4 +1,4 @@
-# Desktop Cat
+﻿# Desktop Cat
 
 [English](README.md) | [繁體中文](README.zh-TW.md) | [日本語](README.ja.md)
 
@@ -20,7 +20,7 @@ Windows 10 或 11、x64、.NET Framework 4.8，以及桌面工作階段。不需
 2. 解壓縮至可寫入的資料夾，讓 `prototype`、`art` 資料夾與 **Start Cat.cmd** 保持在一起。
 3. 按兩下 **Start Cat.cmd**。第一次啟動會自動編譯原始碼，之後只有程式碼更新時才會重新編譯。
 
-啟動時會短暫出現主控台視窗。若要關閉寵物，請使用系統匣圖示選單中的 **Exit**。更新程式碼後若需要重新編譯，請先關閉正在執行的貓咪。
+啟動時會短暫出現主控台視窗。若要關閉程式，請使用系統匣圖示選單中的 **Exit all pets**。更新程式碼後若需要重新編譯，請先關閉程式。
 
 儲存庫與原始碼 Release ZIP 都不包含執行檔。啟動器會在本機的 `prototype/bin` 產生執行檔；Git 會忽略這個資料夾及所有其他 `.exe` 檔案。
 
@@ -39,11 +39,14 @@ Windows 10 或 11、x64、.NET Framework 4.8，以及桌面工作階段。不需
 | <img src="art/sprites/black-ascii-sticker/pet_happy/pet_happy_01.png" alt="被摸摸後開心的貓咪" width="120"> | <img src="art/sprites/black-ascii-sticker/paw_swipe/paw_swipe_02.png" alt="伸出爪子的貓咪" width="120"> | <img src="art/sprites/black-ascii-sticker/carried/carried_01.png" alt="被抱起、四肢垂下的貓咪" width="120"> | <img src="art/sprites/black-ascii-sticker/jump_rise/jump_rise_01.png" alt="跳向平台的貓咪" width="120"> |
 
 - 點一下貓咪來摸摸牠；拖曳可以抱起，放開就會落下。
+- 開啟 **Personality & size**，使用 **Cat size** 滑桿調整大小（**0.50×–2.00×**），再按 **Save**。預設為原先大小的 **1.25 倍**。大小會儲存，切換個性預設也不會改變。
 - 在貓咪身體高度附近輕輕移動游標，吸引牠注意、追逐或揮爪。在 **Personality** 中選擇 **Playful Kitten**，牠會更常玩耍。
-- 在貓咪或系統匣圖示上按右鍵，可設定個性、選擇圖像集、睡覺／喚醒、暫停、跳躍或離開。按兩下系統匣圖示可讓貓咪回到工作列上方。
+- 每次開始追逐時，貓咪有約 10% 的機率先蹲下並扭動約一秒；其餘追逐會直接出發。游標與身體同高時會小跳（最低為身高的 0.1 倍），游標或平台較高時則會跳得更高。游標留在揮爪範圍內時，牠會連續揮爪，最長約 1.3–1.9 秒；游標離開就會停止，跳躍中也一樣。如果無法到達，牠會短暫觀望，不會誤以為已經抓到。
+- 在貓咪或系統匣圖示上按右鍵，選擇 **Add another pet** 即可新增同伴。每隻寵物都有獨立的個性、大小、圖像集、暫停狀態與動作；下次啟動會還原寵物清單。
+- 在貓咪上按右鍵操作牠，或在共用系統匣選單中選擇 **Cat 1**、**Cat 2** 等。**Remove this pet** 只移除該寵物；**Exit all pets** 關閉程式並保留寵物清單。按兩下系統匣圖示可讓所有寵物回到工作列上方。
 - 向上跳躍的目標必須是露出的平台，高度差小於貓咪身高的五倍，且有足夠空間落地。即使視窗全部最大化，工作區底部仍可供貓咪活動。
 
-設定與診斷資料儲存在 `%LOCALAPPDATA%\DesktopCat`：`personality.json`、`sprite-set.txt` 和 `last-run.log`。第一次使用時會移轉既有的開發版設定。使用 Release 套件時，刪除兩個設定檔即可重設偏好。
+設定與診斷資料儲存在 `%LOCALAPPDATA%\DesktopCat`。`pets.json` 記錄寵物清單；每隻寵物的 `personality.json`、`sprite-set.txt` 與 `last-run.log` 位於 `pets\<pet-id>\`。第一隻貓會自動沿用既有設定。根目錄的 `last-run.log` 記錄啟動、錯誤與測試結果。所有寵物由同一個程式管理；程式執行時再次啟動命令不會新增寵物。
 
 ## 幫寵物換個造型
 
@@ -61,6 +64,7 @@ Windows 10 或 11、x64、.NET Framework 4.8，以及桌面工作階段。不需
 & '.\Start Cat.cmd' --self-test
 & '.\Start Cat.cmd' --cursor-test
 & '.\Start Cat.cmd' --settings-test
+& '.\Start Cat.cmd' --multi-pet-test
 & '.\Start Cat.cmd' --integration-test
 & '.\Start Cat.cmd' --smoke-test
 ```

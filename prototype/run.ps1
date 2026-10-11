@@ -17,10 +17,10 @@ try {
     }
     if ($args.Count -gt 0) {
         # Wait for diagnostic probes so their exit status reaches the launcher.
-        $catProcess = Start-Process -FilePath $catExecutable -ArgumentList $args -PassThru -Wait
+        $catProcess = Start-Process -FilePath $catExecutable -ArgumentList $args -WindowStyle Hidden -PassThru -Wait
         exit $catProcess.ExitCode
     }
-    Start-Process -FilePath $catExecutable
+    Start-Process -FilePath $catExecutable -WindowStyle Hidden
     exit 0
 }
 catch {

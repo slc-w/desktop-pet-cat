@@ -1,0 +1,13 @@
+{
+  "version": 1,
+  "columns": 6,
+  "rows": 9,
+  "clips": [
+    "idle", "look", "walk", "run", "sit_down", "sit", "stand_up",
+    "groom", "stretch", "settle", "sleep", "wake", "pet_happy",
+    "paw_swipe", "jump_crouch", "jump_rise", "jump_fall", "land",
+    "fall", "carried", "blink", "sleep_twitch", "sleep_peek",
+    "annoyed_look", "tail_flick", "pet_reserved", "pet_lean", "stalk",
+    "pounce", "knead"
+  ]
+}

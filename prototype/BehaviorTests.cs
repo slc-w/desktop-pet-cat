@@ -21,6 +21,16 @@ namespace DesktopCat
             target.Y=551.2;Check(JumpPlan.Create(100,1000,target,180,88,area)==null,"5.1H rejected");
             target.Y=800;target.Left=900;target.Right=1300;Check(JumpPlan.Create(0,1000,target,180,88,area)==null,"horizontal reach enforced");
             target.Left=0;target.Right=100;Check(JumpPlan.Create(0,1000,target,180,88,area)==null,"narrow platform rejected");
+            target=new Platform {Left=0,Right=1000,Y=1000};
+            plan=JumpPlan.Pursue(100,1000,target,200,88,180,88,area,140);
+            Check(plan!=null && Math.Abs(plan.Y+plan.VY*plan.Duration+500*plan.Duration*plan.Duration-target.Y)<.001,"same-platform pursuit arc lands exactly");
+            Check(JumpPlan.Pursue(100,1000,target,200,440,180,88,area,140)==null,"pursuit apex at exactly 5H rejected");
+            Check(JumpPlan.Pursue(100,1000,target,500,88,180,88,area,140)==null,"pursuit horizontal reach enforced");
+            Check(JumpPlan.Pursue(100,160,target,200,88,180,88,area,140)==null,"unsafe pursuit drop rejected");
+            target.Y=160;
+            Check(JumpPlan.Pursue(100,160,target,200,88,180,88,area,140)==null,"pursuit full-canvas headroom enforced");
+            target.Y=568.8;
+            Check(JumpPlan.Pursue(100,1000,target,200,435.6,180,88,area,140)!=null,"4.9H pursuit platform remains reachable");
             var windows=new List<WindowSurface> {
                 new WindowSurface {Id=new IntPtr(1),Bounds=new Rect(0,200,500,500),Candidate=true},
                 new WindowSurface {Id=new IntPtr(2),Bounds=new Rect(0,400,1000,500),Candidate=true}

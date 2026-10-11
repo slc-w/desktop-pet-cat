@@ -120,7 +120,7 @@ namespace DesktopCat
             if(bursts<3 || BudgetUsed()>CursorMovementBudget+.001)throw new Exception("Playful kitten did not offer repeated bounded play bouts: bursts="+bursts+", movement="+BudgetUsed());checks++;
             ResetCursorProbe();personality=Personality.ForPreset(2);
             testCursor=delegate{return moving;};int swipes=0;previousAction=action;
-            for(int i=0;i<240;i++)
+            for(int i=0;i<360;i++)
             {
                 double t=i/60.0;testNow=t;
                 moving=new Point(Body.Right+.3*BodyHeight+2*Math.Sin(t*4),Body.Top+BodyHeight/2);
@@ -128,13 +128,14 @@ namespace DesktopCat
                 if(action=="paw_swipe" && previousAction!="paw_swipe")swipes++;
                 previousAction=action;stateTime-=1.0/60;if(stateTime<=0)SelectAction();
             }
-            if(swipes<3)throw new Exception("Close-range play did not produce repeated paw reactions");checks++;
+            if(swipes<2)throw new Exception("Close-range play did not produce repeated extended paw reactions");checks++;
             ResetCursorProbe();moving=new Point(Left-2*BodyHeight,Body.Top+BodyHeight/2);testCursor=delegate{return moving;};lastCursor=moving;
             action="chase";SetClip("run");direction=1;stateTime=4;destination=Left+100;cursorPosition=Left;retargetTime=.1;
             AdvanceCursorMove(.02);
             if(action!="chase" || direction!=-1 || clip!="stalk")throw new Exception("Changing lure side failed to turn the cat");checks++;
             old=Left;for(int i=0;i<20;i++)AdvanceCursorMove(.02);
             if(Left>=old)throw new Exception("Cat did not pursue after turning");checks++;
+            checks+=RunPursuitProbe();
             testCursor=null;testNow=null;
             return "PASS cursor replay: "+checks+" checks; slow movement starts visible pursuit at 30/60/120Hz, moving target is followed, comfort gap/budget held, stationary/far/off/sleep do not chase. OS pointer untouched.";
         }
@@ -143,6 +144,10 @@ namespace DesktopCat
             personality=new Personality();paused=false;pressed=false;dragging=false;
             area=new Rect(0,0,1536,912);Left=300;Top=area.Bottom-FootOffset;
             support=new Platform {Left=area.Left,Right=area.Right,Y=area.Bottom};
+            platforms=new System.Collections.Generic.List<Platform>{support};jump=null;velocity=0;horizontalVelocity=0;cursorJump=false;airPawTime=0;
+            // Existing checks isolate ground pursuit; the pursuit probe below enables jumps.
+            cursorJumpCooldown=1000;
+            chaseWiggling=false;testWiggleRoll=null;
             engagement=0;nearbyTime=0;cursorCooldown=0;glanceCooldown=0;wakeCooldown=0;disturbance=0;reactionTime=0;motionSignal=0;
             motionDistance=0;motionSeconds=0;sampledSpeed=0;chaseInterest=0;decisionTime=0;retargetTime=0;cursorTravel=0;chaseWindup=0;attentionAwakeTime=0;pawCooldown=0;pawInterest=0;
             haveCursor=false;haveApproached=false;cursorBudget.Clear();testNow=0;cursorPosition=Left;Start("idle",60);

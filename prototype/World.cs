@@ -75,6 +75,21 @@ namespace DesktopCat
     {
         public double X, Y, VX, VY, Duration;
         public Platform Target;
+        public static JumpPlan Pursue(double x, double feet, Platform target, double toX, double riseToApex, double width, double height, Rect area, double footOffset)
+        {
+            if (target == null || target.Right-target.Left < width || Math.Abs(feet-target.Y) >= 5*height) return null;
+            toX = Motion.Clamp(toX, target.Left, target.Right-width);
+            double rise = feet-target.Y;
+            double positiveRise=Math.Max(0,rise);
+            // Only an elevated landing requires extra clearance. A same-level
+            // pounce must retain the caller's 0.1H minimum rather than becoming 0.2H.
+            if (positiveRise>0) riseToApex = Math.Max(riseToApex, positiveRise+Math.Min(.2*height,(5*height-positiveRise)*.5));
+            if (riseToApex <= 0 || riseToApex >= 5*height || Math.Abs(toX-x) > 4*height || feet-riseToApex-footOffset < area.Top) return null;
+            if (toX < area.Left || toX+width > area.Right) return null;
+            double vy = -Math.Sqrt(2000*riseToApex);
+            double duration = (-vy+Math.Sqrt(vy*vy-2000*rise))/1000;
+            return new JumpPlan {X=x,Y=feet,VX=(toX-x)/duration,VY=vy,Duration=duration,Target=target};
+        }
         public static JumpPlan Create(double x, double feet, Platform target, double width, double height, Rect area)
         {
             double rise = feet - target.Y;
@@ -103,11 +118,11 @@ namespace DesktopCat
         [DllImport("user32.dll")] public static extern short GetAsyncKeyState(int key);
         [DllImport("dwmapi.dll", EntryPoint = "DwmGetWindowAttribute")] static extern int GetBounds(IntPtr hwnd, int attr, out RECT rect, int size);
         [DllImport("dwmapi.dll", EntryPoint = "DwmGetWindowAttribute")] static extern int GetCloaked(IntPtr hwnd, int attr, out int value, int size);
-        public static List<WindowSurface> Read(IntPtr own, Matrix fromDevice)
+        public static List<WindowSurface> Read(IntPtr own, Matrix fromDevice, Func<IntPtr,bool> ignore=null)
         {
             var windows = new List<WindowSurface>();
             EnumWindows(delegate(IntPtr hwnd, IntPtr unused) {
-                if (hwnd == own || !IsWindowVisible(hwnd) || IsIconic(hwnd)) return true;
+                if (hwnd == own || (ignore!=null && ignore(hwnd)) || !IsWindowVisible(hwnd) || IsIconic(hwnd)) return true;
                 int cloaked;
                 if (GetCloaked(hwnd, 14, out cloaked, 4) == 0 && cloaked != 0) return true;
                 var name = new StringBuilder(256); GetClassName(hwnd, name, name.Capacity);

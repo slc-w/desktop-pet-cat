@@ -71,7 +71,7 @@ namespace DesktopCat
     {
         string spriteSet = "black-ascii-sticker";
         string spriteRoot = SpriteSets.Root;
-        string spritePreference = SpriteSets.PreferencePath;
+        string spritePreference;
         Forms.ToolStripMenuItem spriteChoices;
 
         void BuildSpriteMenu()
@@ -131,6 +131,7 @@ namespace DesktopCat
                 }
                 assets = next;
                 spriteSet = id;
+                LogPet("Sprite set: "+id);
                 DrawFrame();
                 // Update existing choices without rebuilding a dropdown during its click event.
                 foreach (Forms.ToolStripItem item in spriteChoices.DropDownItems)

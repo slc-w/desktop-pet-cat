@@ -1,5 +1,7 @@
 # Make the pet your own
 
+Have a generated sprite sheet? Use the [sprite sheet importer](SPRITE_SHEET_IMPORT.md) to cut it into frames and create its manifest automatically.
+
 ASCII is one possible art style. The runtime uses PNG images, not text, so you can draw pixel art, cartoons, robots, blobs, or another character. Artwork changes appearance; the existing controller still uses cat behaviors and movement rules.
 
 ## Add a selectable sprite set
@@ -42,7 +44,7 @@ art/sprites/my-robot/
 - Keep the anchor stable across frames to avoid accidental jitter. Intentionally moving limbs or the body within the canvas is fine.
 - Match the bundled facing direction. The app mirrors most animations horizontally to turn the pet; sleep, sleep twitch, and sleep peek keep their original orientation.
 - Leave empty surroundings transparent. Opaque pixels determine the clickable area, so a solid rectangular background makes the whole rectangle clickable.
-- Preview at desktop size: frames display at 29% of their exported dimensions, approximately **99 × 72 pixels**. Small details and thin lines may be difficult to see.
+- Preview at desktop size: the default 1.25× setting displays frames at 36.25% of their exported dimensions, approximately **123 × 90 display-independent pixels**. The **Cat size** slider ranges from 0.50× to 2.00×, relative to the previous 29% display scale. Small details and thin lines may be difficult to see at smaller sizes.
 
 A white sticker outline is optional. You can use colorful sprites with no backing at all. Export SVGs or other source artwork to PNG before using them; the documented sprite workflow uses PNG frames.
 
@@ -62,8 +64,8 @@ From PowerShell in the project root, with the pet closed:
 
 Read `%LOCALAPPDATA%\DesktopCat\last-run.log`. A passing result checks the bundled sets and custom-set discovery/selection behavior using temporary test artwork. To validate your own set, select it from the dropdown: loading checks its frames and compatibility before applying it. Neither check judges artwork, alignment, or animation quality.
 
-Launch with **Start Cat.cmd**, select your set, and try walking, chasing, petting, dragging, sleeping, and jumping. Check that feet meet platforms and the character does not wobble unexpectedly. Select a bundled set to return to the original artwork. The source packaging script includes all sprite folders with a manifest.
+Launch with **Start Cat.cmd**, select your set, and try walking, chasing, petting, dragging, sleeping, and jumping. Check that feet meet platforms and the character does not wobble unexpectedly. Select a bundled set to return to the original artwork. The source packaging script includes each set's manifest, listed PNG frames, and optional contact sheet. Unlisted source images and reference folders stay local; manifests must not use files inside a `reference` folder.
 
 ## Beyond replacement artwork
 
-Adding selectable sets needs no code changes. Changing character size, collision geometry, frame counts, or animation timing still requires code changes with the current implementation. Sprite selection lives in `prototype/SpriteSets.cs`; canvas size, display scale, and foot offset live in `prototype/DesktopCat.cs`, while body dimensions and behavior live in `prototype/CatBehavior.cs`. Changing manifest metadata alone does not change those physical dimensions.
+Adding selectable sets and adjusting their display size need no code changes. Use **Personality & size → Cat size** for uniform resizing; movement, jump reach, body dimensions, and hit testing scale with it. Changing body proportions, frame counts, or animation timing still requires code changes. Sprite selection lives in `prototype/SpriteSets.cs`; canvas size, display scale, and foot offset live in `prototype/DesktopCat.cs`, while body dimensions and behavior live in `prototype/CatBehavior.cs`. Changing manifest metadata alone does not change those physical dimensions.
